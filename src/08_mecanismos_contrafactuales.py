@@ -15,8 +15,11 @@ Cautela: condicionar en Z = 1 (resultado posterior) es una descomposición descr
 puro; Z observa la vida entera, así que quienes iniciaron más recientemente tienen menos exposición
 (el efecto fijo de periodo lo absorbe porque afecta igual a tratados y controles).
 Se corre en toda la muestra, en LGBTI+ y en OSIG normativa (placebo).
+Para cada resultado y población se guarda además el ESTUDIO DE EVENTOS completo y la prueba de Wald de
+tendencias previas: el efecto sobre Z solo es creíble si θ(e) previo a la ley es plano.
 
-Entradas : base_analitica.csv.gz   Salidas: resultados/tablas/mecanismos_resumen.csv ; figuras/mecanismos.png
+Entradas : base_analitica.csv.gz
+Salidas  : resultados/tablas/mecanismos_{resumen,evento}.csv ; figuras/mecanismos.png ; figuras/mecanismos_evento.png
 """
 import argparse
 import sys
@@ -28,7 +31,18 @@ import pandas as pd
 
 import config as C
 from did_cs import Espec, estimar_cs, fila_resultado, generar_xi
-from graficos import grafica_bosque
+from graficos import grafica_bosque, grafica_evento_panel
+
+
+def _corto(txt: str) -> str:
+    """Etiquetas breves para los paneles de la figura."""
+    if txt.startswith("Y:"):
+        return "Y (primera pareja)"
+    if txt.startswith("Z:"):
+        return "Z (alguna vez)"
+    if txt.startswith("Y entre"):
+        return "Y | Z=1 (se adelanta)"
+    return txt.replace("OSIG normativa (placebo)", "Normativa (placebo)")
 
 
 def main(B: int):
@@ -37,26 +51,39 @@ def main(B: int):
     XI = generar_xi(B)
     pobl = [("Toda la muestra", m), ("LGBTI+", m[m["grupo_osig"] == "LGBTI+"]),
             ("OSIG normativa (placebo)", m[m["grupo_osig"] == "normativa"])]
-    filas = []
+    filas, eventos, paneles = [], [], []
+
+    def correr(base, nombre_p, resultado, esp):
+        res = estimar_cs(base, esp, B=B, XI=XI, n_jobs=C.N_JOBS)
+        filas.append(fila_resultado(res, poblacion=nombre_p, resultado=resultado))
+        if res is not None:
+            ev = res.es.copy()
+            ev.insert(0, "resultado", resultado)
+            ev.insert(0, "poblacion", nombre_p)
+            eventos.append(ev)
+            w = res.wald.get("p_boot", float("nan")) if res.wald else float("nan")
+            paneles.append((f"{_corto(nombre_p)} · {_corto(resultado)}\nWald tendencias previas p = {w:.2f}", res.es))
+        else:
+            paneles.append((f"{_corto(nombre_p)} · {_corto(resultado)}", None))
+
     for nombre_p, base in pobl:
         mo = C.MIN_OBS_CELDA if nombre_p == "Toda la muestra" else C.MIN_OBS_CELDA_SUBMUESTRAS
-        # Y: referencia
-        res = estimar_cs(base, Espec(nombre=f"Y primera pareja | {nombre_p}", min_obs=mo), B=B, XI=XI, n_jobs=C.N_JOBS)
-        filas.append(fila_resultado(res, poblacion=nombre_p, resultado="Y: primera pareja del mismo sexo (principal)"))
-        # "Se cambia": Z alguna vez
-        res = estimar_cs(base, Espec(y="alguna_vez_mismo_sexo", nombre=f"Z alguna vez | {nombre_p}", min_obs=mo),
-                         B=B, XI=XI, n_jobs=C.N_JOBS)
-        filas.append(fila_resultado(res, poblacion=nombre_p, resultado="Z: alguna vez pareja del mismo sexo ('se cambia')"))
-        # "Se adelanta": Y | Z = 1
+        correr(base, nombre_p, "Y: primera pareja del mismo sexo (principal)",
+               Espec(nombre=f"Y primera pareja | {nombre_p}", min_obs=mo))
+        correr(base, nombre_p, "Z: alguna vez pareja del mismo sexo ('se cambia')",
+               Espec(y="alguna_vez_mismo_sexo", nombre=f"Z alguna vez | {nombre_p}", min_obs=mo))
         sub = base[base["alguna_vez_mismo_sexo"] == 1]
-        res = estimar_cs(sub, Espec(nombre=f"Y | Z=1 | {nombre_p}", min_obs=C.MIN_OBS_CELDA_SUBMUESTRAS),
-                         B=B, XI=XI, n_jobs=C.N_JOBS)
-        filas.append(fila_resultado(res, poblacion=nombre_p, resultado="Y entre quienes alguna vez tuvieron pareja del mismo sexo ('se adelanta')"))
+        correr(sub, nombre_p, "Y entre quienes alguna vez tuvieron pareja del mismo sexo ('se adelanta')",
+               Espec(nombre=f"Y | Z=1 | {nombre_p}", min_obs=C.MIN_OBS_CELDA_SUBMUESTRAS))
     t = pd.DataFrame(filas)
     C.DIR_TABLAS.mkdir(parents=True, exist_ok=True)
     t.round(4).to_csv(C.DIR_TABLAS / "mecanismos_resumen.csv", index=False)
-    print("\n== Mecanismos (efecto promedio posterior, pp)")
-    print(t[["poblacion", "resultado", "n", "est_pp", "se_pp", "lo_pp", "hi_pp", "p"]].round(3).to_string(index=False))
+    if eventos:
+        pd.concat(eventos).round(4).to_csv(C.DIR_TABLAS / "mecanismos_evento.csv", index=False)
+    grafica_evento_panel(paneles, C.DIR_FIGURAS / "mecanismos_evento.png",
+                         "Mecanismos: estudio de eventos por resultado y población (pp)")
+    print("\n== Mecanismos (efecto promedio posterior, pp; wald_p_boot = tendencias previas)")
+    print(t[["poblacion", "resultado", "n", "est_pp", "se_pp", "lo_pp", "hi_pp", "p", "wald_p_boot"]].round(3).to_string(index=False))
     t["especificacion"] = t["poblacion"].str.slice(0, 18) + " · " + t["resultado"].str.slice(0, 22)
     grafica_bosque(t, C.DIR_FIGURAS / "mecanismos.png", "Mecanismos: ¿se adelanta o se cambia?")
 

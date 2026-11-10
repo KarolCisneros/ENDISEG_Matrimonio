@@ -1,0 +1,6 @@
+﻿Estimación,Modelo,Efecto en pp (EE),IC 95%,p
+Efecto promedio posterior a la ley,Callaway–Sant'Anna,1.35 (1.28),"[−1.16, 3.86]",0.293
+Corto plazo (0–2 años),Callaway–Sant'Anna,1.57 (1.41),"[−1.20, 4.35]",0.266
+Mediano plazo (3–5 años),Callaway–Sant'Anna,0.38 (1.68),"[−2.91, 3.66]",0.822
+Largo plazo (6+ años),Callaway–Sant'Anna,2.96 (2.66),"[−2.26, 8.18]",0.266
+Efecto promedio (referencia),TWFE,−0.83 (1.18),"[−3.14, 1.48]",0.482

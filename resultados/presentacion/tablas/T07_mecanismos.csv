@@ -1,0 +1,10 @@
+﻿Población,Resultado,N,Efecto en pp (EE),IC 95%,p,p Holm,p BH,p tendencias previas (Wald)
+Toda la muestra,Y: primera pareja del mismo sexo (principal),39988,1.35 (1.26),"[−1.11, 3.81]",0.283,1.000,0.555,0.131
+Toda la muestra,Z: alguna vez pareja del mismo sexo ('se cambia'),39988,8.77 (2.56)***,"[3.76, 13.78]",<0.001,0.005,0.005,0.621
+Toda la muestra,Y entre quienes alguna vez tuvieron pareja del mismo sexo ('se adelanta'),2389,4.42 (11.19),"[−17.52, 26.35]",0.693,1.000,0.754,0.725
+LGBTI+,Y: primera pareja del mismo sexo (principal),1480,21.54 (13.69),"[−5.30, 48.38]",0.116,0.810,0.347,0.873
+LGBTI+,Z: alguna vez pareja del mismo sexo ('se cambia'),1480,19.25 (18.90),"[−17.79, 56.29]",0.308,1.000,0.555,0.766
+LGBTI+,Y entre quienes alguna vez tuvieron pareja del mismo sexo ('se adelanta'),1042,13.22 (17.62),"[−21.32, 47.75]",0.453,1.000,0.583,0.685
+OSIG normativa (placebo),Y: primera pareja del mismo sexo (principal),38508,−0.74 (0.96),"[−2.63, 1.15]",0.440,1.000,0.583,0.178
+OSIG normativa (placebo),Z: alguna vez pareja del mismo sexo ('se cambia'),38508,4.16 (1.87)**,"[0.50, 7.82]",0.026,0.207,0.117,0.738
+OSIG normativa (placebo),Y entre quienes alguna vez tuvieron pareja del mismo sexo ('se adelanta'),1347,−2.92 (9.34),"[−21.22, 15.38]",0.754,1.000,0.754,0.545

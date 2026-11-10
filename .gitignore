@@ -1,0 +1,7 @@
+# Entorno virtual (directorio)
+.env/
+
+# Archivos de variables de entorno
+.env
+.env.local
+.env.*

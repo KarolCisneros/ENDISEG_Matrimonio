@@ -1,0 +1,18 @@
+﻿Especificación,N,Celdas,Efecto en pp (EE),IC 95%,p,p Holm,p BH
+0. Principal,39988,144,1.35 (1.26),"[−1.11, 3.81]",0.283,,
+1a. Ventana de evento ±5 años,39988,85,1.14 (1.33),"[−1.46, 3.74]",0.391,1.000,0.662
+1b. Ventana de evento ±8 años,39988,122,1.29 (1.28),"[−1.21, 3.79]",0.310,1.000,0.662
+1c. Ventana pre 15 / post 10,39988,194,1.35 (1.26),"[−1.11, 3.81]",0.283,1.000,0.662
+1d. Periodos de 2 años,39988,45,0.39 (1.03),"[−1.63, 2.41]",0.702,1.000,0.818
+1e. Periodos de 3 años,39988,22,−0.22 (0.97),"[−2.12, 1.68]",0.818,1.000,0.818
+2a. Año de inicio sexual −1,39988,134,−0.43 (1.83),"[−4.02, 3.17]",0.816,1.000,0.818
+2b. Año de inicio sexual +1,39705,146,1.22 (0.79),"[−0.33, 2.77]",0.122,1.000,0.662
+3a. Sin entidades con amparos tempranos,30037,125,3.07 (1.41)**,"[0.31, 5.83]",0.029,0.441,0.441
+3b. Sin el grupo 2021 (cobertura posterior mínima),36174,134,1.04 (1.23),"[−1.38, 3.46]",0.399,1.000,0.662
+4. Resultado: primer encuentro erótico,39514,132,0.67 (2.17),"[−3.58, 4.92]",0.758,1.000,0.818
+5a. Tratamiento = año de aprobación,39988,144,0.37 (1.27),"[−2.13, 2.86]",0.773,1.000,0.818
+5b. Tratamiento = entrada en vigor formal,39988,143,1.37 (1.28),"[−1.14, 3.87]",0.285,1.000,0.662
+6. Sin covariables,39988,144,1.38 (1.13),"[−0.82, 3.59]",0.219,1.000,0.662
+7a. Incluye personas trans / no binarias,40323,144,1.50 (1.34),"[−1.12, 4.12]",0.261,1.000,0.662
+7b. Solo personas trans / no binarias,335,0,,,,,
+8. Placebo: solo OSIG normativa (heterosexuales),38508,144,−0.75 (0.97),"[−2.65, 1.16]",0.441,1.000,0.662

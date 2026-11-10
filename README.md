@@ -20,9 +20,10 @@ ENDISEG_Matrimonio/
 ├── README.md
 ├── requirements.txt
 ├── config.py                          # TODAS las decisiones del investigador
-├── ejecutar_pipeline.py               # corre los pasos 01–08 en orden
+├── ejecutar_pipeline.py               # corre los pasos 01–11 en orden
 ├── datos/
 │   ├── legalizacion_entidades.csv     # año de legalización por entidad (VERIFICAR)
+│   ├── checklist_verificacion_fechas.csv  # plantilla para verificar cada fecha con la gaceta oficial
 │   └── procesados/                    # (se crea) base_analitica.csv.gz y remuestras
 ├── documentacion/
 │   └── endiseg_bd/                    # AQUÍ van los CSV de INEGI (ver sección 2)
@@ -38,13 +39,20 @@ ENDISEG_Matrimonio/
 │   ├── 05_heterogeneidad.py
 │   ├── 06_robustez.py
 │   ├── 07_rambachan_roth.py
-│   └── 08_mecanismos_contrafactuales.py
+│   ├── 08_mecanismos_contrafactuales.py
+│   ├── 09_diagnostico_entidades.py    # leave-one-out por entidad y por grupo; entidades con amparo temprano
+│   ├── 10_multiplicidad.py            # p-valores ajustados (Holm, Benjamini–Hochberg) por familia de pruebas
+│   ├── 11_tablas_figuras.py           # paquete de tablas y figuras para la presentación
+│   └── multiplicidad.py               # funciones holm() y bh()
+├── r/
+│   └── honestdid.R                    # sensibilidad Rambachan–Roth con el paquete oficial HonestDiD
 ├── pruebas/
 │   ├── generar_tmodulo_sintetico.py   # datos de prueba con efecto conocido
 │   └── validacion_monte_carlo.py      # ¿el estimador recupera el efecto verdadero? (sesgo y dispersión)
 └── resultados/                        # (se crea)
     ├── tablas/                        # CSV
-    └── figuras/                       # PNG
+    ├── figuras/                       # PNG + SVG
+    └── presentacion/                  # tablas formateadas (T01…), figuras (F01…), tablas_presentacion.xlsx e índice
 ```
 
 ## 2. Datos de entrada
@@ -96,6 +104,10 @@ python src/05_heterogeneidad.py        [--B 299]
 python src/06_robustez.py              [--B 299]
 python src/07_rambachan_roth.py        [--k_post 4]
 python src/08_mecanismos_contrafactuales.py [--B 299]
+python src/09_diagnostico_entidades.py
+python src/10_multiplicidad.py
+python src/11_tablas_figuras.py
+Rscript r/honestdid.R                  # opcional; requiere R y el paquete HonestDiD
 ```
 
 **Rutas alternativas** (por ejemplo, para probar con datos sintéticos sin mezclar salidas):
@@ -135,7 +147,11 @@ El mapeo siguiente es la lectura que hice del PDF de metodología. Si algo no co
 | Robustez (ventanas, ±1 año, amparos tempranos, resultado alternativo) | `06` |
 | Placebo con heterosexuales | `06` (spec 8), `08` |
 | Sensibilidad a violaciones de tendencias paralelas (Rambachan–Roth) | `07`, `honest_rr.py` |
-| Contrafactuales: se adelanta vs. se cambia | `08` |
+| Contrafactuales: se adelanta vs. se cambia | `08` (incluye estudio de eventos y Wald de tendencias previas de cada resultado) |
+| Efecto por año calendario de debut (con IC) | `03` → `cs_anio_calendario.csv`, `cs_anio.png` |
+| ¿Depende el resultado de unas pocas entidades? (amparos tempranos) | `09` |
+| Muchas pruebas → algunos p < 0.05 por azar | `10` (columnas `p_holm`, `p_bh`) |
+| Tablas y figuras de presentación | `11` |
 
 ### Paso 01 — `01_construir_base.py` (base analítica)
 
@@ -171,7 +187,7 @@ El mapeo siguiente es la lectura que hice del PDF de metodología. Si algo no co
 
 ### Paso 03 — `03_did_callaway_santanna.py` (modelo principal)
 
-**Sale:** `cs_att_gt.csv`, `cs_evento.csv`, `cs_resumen.csv`, `cs_wald_pretendencias.csv`, `cs_celdas_omitidas.csv`, `figuras/cs_evento.png`, `datos/procesados/cs_boot_evento.csv`.
+**Sale:** `cs_att_gt.csv`, `cs_evento.csv`, `cs_resumen.csv`, `cs_anio_calendario.csv`, `cs_wald_pretendencias.csv`, `cs_celdas_omitidas.csv`, `figuras/cs_evento.png`, `figuras/cs_anio.png`, `datos/procesados/cs_boot_evento.csv`.
 
 - **ATT(g,t):** efecto en el grupo que legalizó en el año g, medido en el año de inicio t. El grupo g se compara solo con entidades aún no tratadas (G > máx(t, g−1)), con periodo base universal g−1.
 - **Estimador:** doblemente robusto para secciones transversales repetidas (Sant'Anna y Zhao 2020, equivalente a `DRDID::drdid_rc1`), con ponderadores FACTOR. Combina:
@@ -183,6 +199,7 @@ El mapeo siguiente es la lectura que hice del PDF de metodología. Si algo no co
   - e = −1 normalizado a 0.
 - **Prueba de Wald** conjunta de θ(e) = 0 para e < −1, con p-valor χ² y p-valor bootstrap.
 - **Banda sup-t** uniforme para el estudio de eventos.
+- **Año calendario:** además de agregar por e = t − g, se agrega por el año calendario de inicio sexual t (solo celdas posteriores a la ley), con IC puntual.
 
 ### Paso 04 — `04_twfe_referencia.py`
 
@@ -224,6 +241,19 @@ Mi operacionalización de los dos contrafactuales (confírmala):
 - **"Se adelanta":** Y solo entre quienes tienen Z = 1.
 
 Se corre para toda la muestra, LGBTI+ y OSIG normativa (placebo). Condicionar en Z es descriptivo, no causal.
+Para cada resultado y población guarda el estudio de eventos (`mecanismos_evento.csv`, `figuras/mecanismos_evento.png`) y el p-valor de la prueba de Wald de tendencias previas: un efecto sobre Z solo es creíble si los coeficientes previos a la ley son planos.
+
+### Paso 09 — `09_diagnostico_entidades.py`
+Descompone de qué entidades depende el efecto promedio: describe las entidades con amparo temprano (`diag_amparos.csv`), recalcula el efecto dejando fuera una entidad a la vez (`diag_loo_entidad.csv`, `figuras/loo_entidades.png`), un grupo de legalización a la vez (`diag_loo_grupo.csv`) y las entidades de amparo temprano una por una y todas juntas (`diag_excluir_amparos.csv`). Solo estimaciones puntuales (sin bootstrap): sirve para ver el cambio, no para inferir.
+
+### Paso 10 — `10_multiplicidad.py`
+Agrega `p_holm` (controla la probabilidad de al menos un falso positivo) y `p_bh` (controla la proporción de falsos positivos entre los rechazos) a las tablas de grupos, heterogeneidad, diferencias, robustez, mecanismos y coeficientes previos, dentro de cada familia. Escribe `*_ajustado.csv` y reporta cuántos p < 0.05 sobreviven. **Reporta el p ajustado junto al p original.**
+
+### Paso 11 — `11_tablas_figuras.py`
+No estima nada: lee las salidas y arma `resultados/presentacion/` con tablas T01…T10 (formato "estimado (EE)", IC, p, p ajustado; CSV, un libro `.xlsx` y `tablas.md`), figuras F01…F11 (PNG a 200 dpi y SVG, proporción 16:9) y un `indice_presentacion.md` que dice qué sostiene cada una. Si falta alguna salida (porque no corriste ese paso), la omite.
+
+### Sensibilidad con el paquete oficial — `r/honestdid.R`
+Lee `honestdid_betahat.csv` y `honestdid_sigma.csv` (los exporta el paso 07) y corre `HonestDiD` (magnitudes relativas y suavidad) para el efecto inmediato y el promedio posterior. Escribe `honestdid_{rm,sd}_*.csv` y las figuras correspondientes. Es la versión que debes citar en el artículo; el paso 07 es una aproximación.
 
 ## 5. Parámetros que puedes cambiar (`config.py`)
 
@@ -271,7 +301,10 @@ Con estos datos, 21 entidades quedan tratadas en 10 grupos (2010, 2012, 2014, 20
 5. **Entidad de residencia ≠ entidad del debut.** Quien migró queda mal asignado.
 6. **Jurisprudencia nacional de 2015** abrió el amparo en todo el país. Es un choque común que absorbe el efecto fijo de año, pero matiza qué significa "legalización".
 7. **Sun y Abraham** no está implementado (solo Callaway–Sant'Anna y TWFE). Si lo quieres como estimador secundario, hay que escribirlo.
-8. **Rambachan–Roth** es aproximado (ver paso 07).
+8. **Rambachan–Roth** es aproximado (ver paso 07); para el artículo usa `r/honestdid.R`.
+8b. **Fechas de legalización sin verificar.** Usa `datos/checklist_verificacion_fechas.csv` (seis entidades con discrepancia entre fuentes van primero). Si cambias una fecha, vuelve a correr desde el paso 01.
+8c. **Comparaciones múltiples.** Hay ~60 pruebas entre grupos, submuestras, robustez y mecanismos. Un p < 0.05 aislado no es evidencia; mira `p_holm` y `p_bh` (paso 10).
+8d. **Personas trans/no binarias solas** (robustez 7b): con ~335 personas no hay celdas estimables. Se reporta como limitación.
 9. **Definición de LGBTI+ y cobertura de P8_2/P7_8:** se validan en el paso 02 cuando corras con el `TMODULO` real. Hasta entonces son supuestos míos a partir del descriptor de archivos.
 
 ## 8. Problemas frecuentes

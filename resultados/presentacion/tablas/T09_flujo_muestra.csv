@@ -1,0 +1,13 @@
+﻿paso,n_muestra,n_expandido
+Personas en TMODULO,44189,97232689
+Con edad válida de 15 años o más,44178,97216711
+  (-) Nunca han tenido relaciones sexuales (P7_5 = 00),3764,10450705
+  (-) Edad de primera relación 'no recuerda' / 'no especificado' (98/99),70,145938
+Con edad de primera relación válida,40344,86620068
+"  (-) Primera pareja 'otro', ambos sexos o sin respuesta",21,39418
+Con resultado Y válido,40323,86580650
+  (-) Edad de debut > edad actual o año de inicio posterior al levantamiento,0,0
+"  (-) Falta alguna covariable (cohorte, sexo, índice SES)",0,0
+Muestra con trans/no binarias incluidas (sensibilidad),40323,86580650
+  (-) Personas trans / no binarias (se analizan aparte),335,669163
+MUESTRA PRINCIPAL,39988,85911487

@@ -21,6 +21,9 @@ PASOS = [
     ("06_robustez.py", "Robustez"),
     ("07_rambachan_roth.py", "Sensibilidad Rambachan-Roth"),
     ("08_mecanismos_contrafactuales.py", "Mecanismos (se adelanta / se cambia)"),
+    ("09_diagnostico_entidades.py", "Diagnóstico por entidad (leave-one-out, amparos)"),
+    ("10_multiplicidad.py", "Ajuste por comparaciones múltiples (Holm / BH)"),
+    ("11_tablas_figuras.py", "Tablas y figuras para la presentación"),
 ]
 
 if __name__ == "__main__":

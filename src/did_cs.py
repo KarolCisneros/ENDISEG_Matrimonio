@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import concurrent.futures as cf
 import multiprocessing as mp
+import warnings
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -210,6 +211,9 @@ def _matriz_agregacion(celdas: list[Celda]) -> tuple[np.ndarray, list[tuple]]:
         agrega(lambda c, lo=lo, hi=hi: lo <= c.e <= hi, ("resumen", nom))
     for g in sorted({c.g for c in celdas}):
         agrega(lambda c, g=g: c.g == g and c.e >= 0, ("grupo", g))
+    # año calendario de inicio sexual (solo celdas posteriores a la ley)
+    for t in sorted({c.t for c in celdas if c.e >= 0}):
+        agrega(lambda c, t=t: c.t == t and c.e >= 0, ("anio", t))
     return (np.vstack(filas) if filas else np.zeros((0, n))), etiquetas
 
 
@@ -256,6 +260,7 @@ class ResultadoCS:
     etiquetas: list
     B_validas: int = 0
     wald: dict = field(default_factory=dict)
+    anio: pd.DataFrame | None = None  # efecto por año calendario de inicio sexual (celdas posteriores a la ley)
 
     def get(self, clave: str):
         """Fila de resumen (est, se, lo, hi, p) en pp."""
@@ -335,13 +340,17 @@ def estimar_cs(df: pd.DataFrame, esp: Espec, B: int = C.B_BOOT, XI=None,
     if B_ok > 5:
         ie = [i for i, et in enumerate(etiquetas) if et[0] == "es"]
         sd = se[ie]
-        tmax = np.nanmax(np.abs(boot[:, ie] - theta[ie]) / np.where(sd > 0, sd, np.nan), axis=1)
-        crit = np.nanquantile(tmax, C.NIVEL_CONFIANZA)
-        for i, k in zip(ie, range(len(ie))):
-            e_ = etiquetas[i][1]
-            m = es["e"] == e_
-            es.loc[m, "supt_lo_pp"] = (theta[i] - crit * se[i]) * 100
-            es.loc[m, "supt_hi_pp"] = (theta[i] + crit * se[i]) * 100
+        with np.errstate(all="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            tt = np.abs(boot[:, ie] - theta[ie]) / np.where(sd > 0, sd, np.nan)
+            ok_fila = np.isfinite(tt).any(axis=1)
+            tmax = np.nanmax(tt[ok_fila], axis=1) if ok_fila.any() else np.array([])
+        if len(tmax) > 5:
+            crit = float(np.quantile(tmax, C.NIVEL_CONFIANZA))
+            for i in ie:
+                m = es["e"] == etiquetas[i][1]
+                es.loc[m, "supt_lo_pp"] = (theta[i] - crit * se[i]) * 100
+                es.loc[m, "supt_hi_pp"] = (theta[i] + crit * se[i]) * 100
 
     # resumen
     filas_r = []
@@ -352,8 +361,19 @@ def estimar_cs(df: pd.DataFrame, esp: Espec, B: int = C.B_BOOT, XI=None,
             filas_r.append(dict(nombre=nombre, est_pp=est, se_pp=s_, lo_pp=lo, hi_pp=hi, p=p))
     resumen = pd.DataFrame(filas_r)
 
+    # efecto por año calendario de inicio sexual (con IC puntual)
+    filas_a = []
+    for i, et in enumerate(etiquetas):
+        if et[0] == "anio":
+            est, s_, lo, hi, p = fila(i)
+            filas_a.append(dict(anio=et[1], theta_pp=est, se_pp=s_, lo_pp=lo, hi_pp=hi, p=p,
+                                n_celdas=int(sum(1 for c in celdas if c.t == et[1] and c.e >= 0)),
+                                n_trat=int(sum(c.n_d1_post for c in celdas if c.t == et[1] and c.e >= 0))))
+    anio_df = pd.DataFrame(filas_a)
+
     res = ResultadoCS(esp=esp, celdas=tc, omitidas=omitidas, es=es, resumen=resumen, n_obs=P["n"],
-                      n_trat=int(sum(c.n_d1_post for c in celdas)), boot=boot, etiquetas=etiquetas, B_validas=B_ok)
+                      n_trat=int(sum(c.n_d1_post for c in celdas)), boot=boot, etiquetas=etiquetas, B_validas=B_ok,
+                      anio=anio_df)
     if boot is not None:
         res.wald = wald_pretrend(res)
     return res

@@ -1,0 +1,19 @@
+﻿Dimensión,Grupo,N,Celdas,Efecto en pp (EE),IC 95%,p,p Holm,p BH
+Todas,Todas,39988,144,1.35 (1.26),"[−1.11, 3.81]",0.283,,
+Orientación (OSIG),Normativa (heterosexual y cis),38508,147,−0.74 (0.96),"[−2.63, 1.15]",0.440,1.000,0.826
+Orientación (OSIG),LGBTI+,1480,39,21.54 (13.69),"[−5.30, 48.38]",0.116,1.000,0.579
+Orientación detallada,Heterosexual,38508,147,−0.74 (0.96),"[−2.63, 1.15]",0.440,1.000,0.826
+Orientación detallada,Gay / lesbiana,723,7,9.57 (37.43),"[−63.79, 82.94]",0.798,1.000,0.940
+Orientación detallada,Bisexual,703,22,6.96 (12.07),"[−16.69, 30.62]",0.564,1.000,0.846
+Sexo al nacer,Hombres,18250,144,2.23 (2.36),"[−2.40, 6.86]",0.345,1.000,0.826
+Sexo al nacer,Mujeres,21738,141,0.74 (0.90),"[−1.03, 2.50]",0.413,1.000,0.826
+Nivel socioeconómico,Bajo,14267,107,2.36 (1.45),"[−0.48, 5.20]",0.103,1.000,0.579
+Nivel socioeconómico,Medio,13369,133,0.42 (2.76),"[−4.99, 5.84]",0.878,1.000,0.940
+Nivel socioeconómico,Alto,12352,136,1.78 (1.30),"[−0.76, 4.32]",0.169,1.000,0.633
+Cohorte de nacimiento,<1990,29403,19,−0.50 (2.13),"[−4.68, 3.68]",0.815,1.000,0.940
+Cohorte de nacimiento,1990-94,4465,69,10.36 (4.03)**,"[2.46, 18.26]",0.010,0.153,0.153
+Cohorte de nacimiento,1995-99,3586,77,0.04 (1.71),"[−3.32, 3.39]",0.982,1.000,0.982
+Cohorte de nacimiento,2000-04,2315,46,0.85 (1.79),"[−2.65, 4.35]",0.634,1.000,0.865
+Cohorte de nacimiento,2005+,219,1,0.00 (0.00),"[0.00, 0.00]",,,
+LGBTI+ según momento de darse cuenta,Ya sabía su orientación al debut,1180,32,9.37 (14.09),"[−18.25, 36.98]",0.506,1.000,0.844
+LGBTI+ según momento de darse cuenta,Se dio cuenta después del debut,300,0,,,,,
