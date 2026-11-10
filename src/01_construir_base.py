@@ -112,8 +112,10 @@ def construir():
     d["anio_nac"] = C.ANIO_REF - d["edad"]
     d["mujer"] = (d["P7_1"] == 2).astype(float).where(d["P7_1"].isin([1, 2]))
     d["cohorte_c"] = (d["anio_nac"] - 1980) / 10.0
-    d["cohorte_grupo"] = pd.cut(d["anio_nac"], [0, 1969, 1979, 1989, 1999, 3000],
-                                labels=["<1970", "1970-79", "1980-89", "1990-99", "2000+"])
+    # Las cohortes nacidas antes de 1990 debutaron casi todas antes de 2010 (primera legalización): solo
+    # aportan periodos previos. Los grupos posteriores son los que identifican el efecto.
+    d["cohorte_grupo"] = pd.cut(d["anio_nac"], [0, 1989, 1994, 1999, 2004, 3000],
+                                labels=["<1990", "1990-94", "1995-99", "2000-04", "2005+"])
 
     # ------------------------------------------------------------------ orientación e identidad
     d["orient_cat"] = d["P8_1"].map({1: "lesbiana", 2: "gay", 3: "bisexual", 4: "heterosexual",

@@ -63,7 +63,10 @@ def main(B: int):
         e = Espec(nombre=nombre, **kw)
         print(f">> {nombre}")
         res = estimar_cs(base, e, B=B, XI=XI, n_jobs=C.N_JOBS)
-        filas.append(fila_resultado(res, especificacion=nombre))
+        fila = fila_resultado(res, especificacion=nombre)
+        if res is None:
+            fila["n"] = len(base)      # tamaño de la submuestra aunque no haya celdas estimables
+        filas.append(fila)
     tabla = pd.DataFrame(filas)
     tabla.round(4).to_csv(C.DIR_TABLAS / "robustez_resumen.csv", index=False)
     cols = ["especificacion", "n", "celdas", "est_pp", "se_pp", "lo_pp", "hi_pp", "p", "wald_p_boot"]

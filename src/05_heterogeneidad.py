@@ -48,7 +48,7 @@ def definir_submuestras(m: pd.DataFrame):
     s += [("Sexo al nacer", "Hombres", m["mujer"] == 0), ("Sexo al nacer", "Mujeres", m["mujer"] == 1)]
     for t, nom in [(1, "Bajo"), (2, "Medio"), (3, "Alto")]:
         s.append(("Nivel socioeconómico", nom, m["ses_tercil"] == t))
-    for c in ["<1970", "1970-79", "1980-89", "1990-99", "2000+"]:
+    for c in ["<1990", "1990-94", "1995-99", "2000-04", "2005+"]:
         s.append(("Cohorte de nacimiento", c, m["cohorte_grupo"].astype(str) == c))
     lg = m["grupo_osig"] == "LGBTI+"
     s += [("LGBTI+ según momento de darse cuenta", "Ya sabía su orientación al debut", lg & (m["consciente_al_debut"] == 1)),
@@ -69,7 +69,10 @@ def main(B: int):
             continue
         esp = Espec(nombre=f"{dim} | {nombre}", min_obs=C.MIN_OBS_CELDA if nombre == "Todas" else C.MIN_OBS_CELDA_SUBMUESTRAS)
         res = estimar_cs(sub, esp, B=B, XI=XI, n_jobs=C.N_JOBS)
-        filas.append(fila_resultado(res, dimension=dim, grupo=nombre))
+        fila = fila_resultado(res, dimension=dim, grupo=nombre)
+        if res is None:
+            fila["n"] = len(sub)       # tamaño de la submuestra aunque no haya celdas estimables
+        filas.append(fila)
         if res is not None and res.boot is not None:
             draws[(dim, nombre)] = res.draws(("resumen", "global_post"))
     tabla = pd.DataFrame(filas)

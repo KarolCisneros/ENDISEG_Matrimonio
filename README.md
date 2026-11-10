@@ -2,12 +2,14 @@
 
 Pipeline en Python para estimar si la legalización del matrimonio igualitario, que ocurrió en años distintos según la entidad, cambió la probabilidad de que la **primera pareja sexual sea del mismo sexo**. Usa los microdatos de la ENDISEG 2021 (INEGI) y un diseño de **diferencias en diferencias escalonado** (Callaway y Sant'Anna, 2021).
 
-> **Estado del repo (importante).** Es una versión parcial.
-> - El pipeline se probó con un `TMODULO` **sintético** (claves, edades y ponderadores reales de tus bases; respuestas simuladas). Los pasos 01 y 03 corrieron; el 02 tenía un error de tipo de dato en las llaves, ya corregido.
-> - Los pasos 04 a 08 **no se han ejecutado** todavía.
-> - El último cambio (segundo nivel de pesos aleatorios por UPM en el bootstrap) **no se ha vuelto a probar**.
-> - Hasta validarlo, **no interpretes errores estándar, intervalos ni p-valores**. Ver [Limitaciones y pendientes](#limitaciones-y-pendientes).
-> - Nunca se ha corrido con el `TMODULO` real.
+> **Estado del repo (importante).**
+> - Los **ocho pasos corren de principio a fin** con un `TMODULO` **sintético** (claves, edades, estratos, UPM y ponderadores reales de tus bases; respuestas simuladas con un efecto conocido).
+> - **Validado con datos sintéticos:**
+>   - El estimador puntual es insesgado (Monte Carlo, 60 réplicas, `pruebas/validacion_monte_carlo.py`): sesgo de −0.19 pp con periodos de 3 años (efecto verdadero 12 pp) y de +0.13 pp en el placebo.
+>   - El error estándar del bootstrap con `INFERENCIA = "ambos"` queda bien calibrado frente a la dispersión real entre réplicas (placebo: 1.49 real vs. 1.69; LGBTI+: 16.1 real vs. unos 15–16).
+>   - Con `INFERENCIA = "entidad"` (solo por entidad) la prueba de tendencias previas rechazó con p ≈ 0.03 en datos sin violación; con `"ambos"` da p = 0.77.
+> - **Nunca se ha corrido con el `TMODULO` real.** Las definiciones de LGBTI+, la cobertura de P8_2/P7_8 y la tabla de legalización siguen pendientes de validar con tus datos (ver [Limitaciones y pendientes](#7-limitaciones-y-pendientes)).
+> - **Poder estadístico bajo.** Con tamaños de muestra como los de la prueba, el efecto global tiene un error estándar de unos 2.5 pp y el de LGBTI+ de unos 16 pp (8.6 pp con periodos de 3 años). Detalle en la sección 7.
 
 ---
 
@@ -38,7 +40,8 @@ ENDISEG_Matrimonio/
 │   ├── 07_rambachan_roth.py
 │   └── 08_mecanismos_contrafactuales.py
 ├── pruebas/
-│   └── generar_tmodulo_sintetico.py   # datos de prueba con efecto conocido
+│   ├── generar_tmodulo_sintetico.py   # datos de prueba con efecto conocido
+│   └── validacion_monte_carlo.py      # ¿el estimador recupera el efecto verdadero? (sesgo y dispersión)
 └── resultados/                        # (se crea)
     ├── tablas/                        # CSV
     └── figuras/                       # PNG
@@ -254,13 +257,16 @@ Con estos datos, 21 entidades quedan tratadas en 10 grupos (2010, 2012, 2014, 20
 
 ## 7. Limitaciones y pendientes
 
-1. **Inferencia (crítico).**
-   - Si un grupo de legalización es una sola entidad (CDMX, Quintana Roo), multiplicar todos sus pesos por una constante no cambia su media ponderada.
-   - Por eso el bootstrap solo por entidad no ve su ruido muestral. En la prueba sintética, la prueba de tendencias previas rechazó con p = 0.000 pese a que los datos no tenían violación.
-   - Se agregó un segundo nivel de pesos por UPM (`INFERENCIA = "ambos"`), que **no se ha vuelto a probar**. Compárala con `entidad` y con `upm` antes de confiar en un resultado.
-   - Aun así, con un solo clúster tratado la inferencia a nivel entidad es frágil.
-2. **Poder estadístico.** Las celdas por entidad y año son chicas. Con la muestra LGBTI+ (unos 2,400 casos) muchas celdas se omiten. Revisa el paso 02 y considera periodos de 2–3 años.
-3. **Estimador puntual sin validar.** En la prueba sintética salió ruidoso. Falta confirmar que recupera el efecto plantado (12 pp en LGBTI+, 0 en el placebo).
+1. **Inferencia.**
+   - Si un grupo de legalización es una sola entidad (CDMX, Quintana Roo), multiplicar todos sus pesos por una constante no cambia su media ponderada. Por eso el bootstrap solo por entidad no ve su ruido muestral y subestima el error (en la prueba, el error del efecto global fue 0.9 pp con `"entidad"` y 2.4 pp con `"ambos"`).
+   - Por eso el valor por defecto es `INFERENCIA = "ambos"` (entidad + UPM), que se validó con datos sintéticos.
+   - Aun así, con un solo clúster tratado la inferencia a nivel entidad es frágil; no se puede salir de esa limitación con estos datos.
+2. **Poder estadístico (la limitación más importante).**
+   - En la prueba, el efecto global tuvo un error estándar de unos 2.5 pp, mientras que un efecto plantado de 12 pp sobre las personas LGB+ equivale a menos de 1 pp sobre toda la muestra: **no se distingue de cero**.
+   - En LGBTI+ (unos 2,600 casos) solo 27 de 147 celdas ATT(g,t) son estimables con `MIN_OBS_CELDA_SUBMUESTRAS = 5`, y el error estándar es de unos 16 pp. Con periodos de 3 años baja a unos 8.6 pp.
+   - En subgrupos más finos (gay/lesbiana, "ya sabía su orientación al debut") las estimaciones son inestables (por ejemplo, 77 pp con error de 35 pp en la prueba). **No las interpretes.**
+   - Recomendación: para LGBTI+ y subgrupos usa `ANIOS_POR_PERIODO = 3`, y trata el modelo de toda la muestra como el análisis de referencia.
+3. **Las cohortes anteriores a 1990 no tienen periodo posterior a la ley.** Debutaron casi todas antes de 2010 (primera legalización), así que solo aportan periodos previos y las submuestras por cohorte quedan vacías. Las cohortes que identifican el efecto son las nacidas desde 1990 (la heterogeneidad usa <1990, 1990-94, 1995-99, 2000-04 y 2005+).
 4. **Año de inicio aproximado.** `anio_nac = 2021 − edad` (±1 año). El margen se prueba en la robustez 2a/2b.
 5. **Entidad de residencia ≠ entidad del debut.** Quien migró queda mal asignado.
 6. **Jurisprudencia nacional de 2015** abrió el amparo en todo el país. Es un choque común que absorbe el efecto fijo de año, pero matiza qué significa "legalización".
