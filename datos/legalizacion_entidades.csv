@@ -1,0 +1,33 @@
+ent,entidad,fecha_principal,fecha_formal_vigor,fecha_aprobacion,mecanismo,amparo_temprano,anio_amparo_temprano,discrepancia_fuentes,notas
+01,Aguascalientes,2019-08-16,2019-08-16,2019-04-02,Judicial (SCJN AI 40/2018),1,,0,El Registro Civil empezó a expedir actas antes de la fecha de vigor (año no precisado en la fuente); el Código Civil sigue sin reformarse
+02,Baja California,2017-11-03,2017-11-03,2017-11-03,Decreto/no aplicación de la prohibición; codificación 2021-06-16,0,,1,Gaceta UNAM lo lista en 2021 (codificación); se toma 2017 por ser cuando el Registro Civil empezó a recibir solicitudes sin amparo
+03,Baja California Sur,2019-06-29,2019-06-29,2019-06-27,Legislativo,0,,0,
+04,Campeche,2016-05-20,2016-05-20,2016-05-10,Legislativo,0,,0,
+05,Coahuila,2014-09-17,2014-09-17,2014-09-01,Legislativo,0,,0,Pacto Civil de Solidaridad (2007) no era matrimonio
+06,Colima,2016-06-12,2016-06-12,2016-05-25,Legislativo,0,,0,Enlace conyugal desde 2013
+07,Chiapas,2017-10-30,2018-05-11,2017-07-11,Judicial (SCJN AI 32/2016) + legislativo,0,,1,Principal = 2017-10-30 (Registro Civil acepta solicitudes sin amparo); vigor formal 2018-05-11
+08,Chihuahua,2015-06-12,2015-06-12,2015-06-11,Decreto del ejecutivo,1,,0,Casi 20 amparos ejecutados antes de la legalización (año no precisado)
+09,Ciudad de México,2010-03-04,2010-03-04,2009-12-29,Legislativo + reforma constitucional,0,,0,Aprobada 2009-12-21 y promulgada 2009-12-29; vigor 2010-03-04
+10,Durango,2022-09-19,2022-09-19,2022-09-16,Decreto + legislativo,0,,0,Posterior al campo: no tratada en la muestra
+11,Guanajuato,2021-12-20,2021-12-20,2021-12-20,Decreto + legislativo,1,2016,0,Cabildo de Guanajuato capital permitió una boda el 2016-04-29; fecha principal posterior al corte (se codifica no tratada)
+12,Guerrero,2022-12-31,2022-12-31,2022-10-25,Legislativo,1,2015,0,20 parejas casadas en Acapulco el 2015-07-10 (luego anuladas); posterior al campo
+13,Hidalgo,2019-06-11,2019-06-11,2019-05-24,Legislativo,0,,0,
+14,Jalisco,2016-04-21,2016-04-21,2016-01-26,Judicial (SCJN AI 28/2015) + legislativo,1,2013,1,Primera boda por amparo en 2013-12; codificación 2022-04-09 (Gaceta UNAM lo lista en 2022)
+15,México,2022-11-02,2022-11-02,2022-10-11,Legislativo,0,,0,Posterior al campo
+16,Michoacán,2016-06-23,2016-06-23,2016-05-18,Legislativo,0,,0,
+17,Morelos,2016-07-05,2016-07-05,2016-05-18,Legislativo + reforma constitucional,0,,0,
+18,Nayarit,2015-12-23,2015-12-23,2015-12-17,Legislativo,0,,0,Otra fuente menciona amparos previos: verificar
+19,Nuevo León,2019-05-31,2019-05-31,2019-02-19,Judicial + legislativo,0,,0,Codificación 2023-06-14
+20,Oaxaca,2018-08-26,2018-08-26,2018-08-26,Decisión administrativa + legislativo,1,2012,1,Orden de juez federal en 2012-08-26; reforma legislativa 2019-10-05 (Gaceta UNAM lo lista en 2019)
+21,Puebla,2018-02-16,2018-02-16,2017-08-01,Judicial (SCJN AI 29/2016) + legislativo,0,,1,Registro Civil acepta solicitudes desde fines de ene-2018; armonización legislativa 2020-11-11 (Gaceta UNAM lo lista en 2020)
+22,Querétaro,2021-11-12,2021-11-12,2021-09-22,Legislativo,1,2015,0,Registro Civil de la capital casó sin amparo desde 2015-07-21 y otros 7 municipios hacia ene-2017
+23,Quintana Roo,2012-05-03,2012-05-03,2012-05-03,Decisión administrativa,1,2011,0,Primeras dos bodas 2011-11-28 (anuladas en abr-2012; anulación revertida en may-2012)
+24,San Luis Potosí,2019-05-21,2019-05-21,2019-05-17,Legislativo,0,,0,
+25,Sinaloa,2021-06-30,2021-06-30,2021-06-15,Legislativo,0,,0,
+26,Sonora,2021-10-22,2021-10-22,2021-09-23,Legislativo,0,,0,Entra en vigor durante el levantamiento
+27,Tabasco,2022-10-27,2022-10-27,2022-10-19,Legislativo,0,,0,Posterior al campo
+28,Tamaulipas,2022-11-19,2022-11-19,2022-10-26,Legislativo,0,,0,Posterior al campo
+29,Tlaxcala,2020-12-24,2020-12-24,2020-12-08,Legislativo,0,,0,
+30,Veracruz,2022-06-13,2022-06-13,2022-05-30,Judicial + legislativo,0,,0,Posterior al campo
+31,Yucatán,2022-03-04,2022-03-04,2021-08-25,Reforma constitucional + legislativo,0,,1,El Congreso aprobó la reforma el 2021-08-25 y las leyes secundarias en 2022-03; fecha_aprobacion usa la primera
+32,Zacatecas,2021-12-30,2021-12-30,2021-12-14,Legislativo,0,,0,Fecha principal posterior al corte (se codifica no tratada)
