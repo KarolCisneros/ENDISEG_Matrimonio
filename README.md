@@ -178,7 +178,7 @@ El mapeo siguiente es la lectura que hice del PDF de metodología. Si algo no co
 
 **Sale:** `validacion_tabulados.csv`, `descriptivos_Y.csv`, `grupos_legalizacion.csv`, `conteos_grupo_anio.csv`, `celdas_omitidas.csv`, `figuras/tasas_por_grupo.png`.
 
-1. Compara con los tabulados de INEGI: total 44,189; OSIG normativa 41,827; OSIG LGBTI+ 2,362. Es tu validación de que las definiciones de orientación e identidad están bien.
+1. Compara con los tabulados de INEGI: total 44,189; OSIG normativa 41,827; OSIG LGBTI+ 2,362. Es la validación de que las definiciones de orientación e identidad están bien.
 2. Con `TAPART_A/B`, verifica que el `FACTOR` de `TMODULO` sea el mismo para las mismas personas.
 3. Resume las variables de diseño (estratos, UPM, entidades, rango de FACTOR).
 4. Descriptivos de Y con error estándar **por linealización** usando estrato, UPM y FACTOR.
@@ -236,7 +236,7 @@ Mide cuánta violación de tendencias paralelas toleraría el resultado, bajo su
 
 ### Paso 08 — `08_mecanismos_contrafactuales.py`
 
-Mi operacionalización de los dos contrafactuales (confírmala):
+Operacionalización de los dos contrafactuales :
 - **"Se cambia":** Z = alguna vez tuvo pareja del mismo sexo (`P7_8`), en toda la muestra.
 - **"Se adelanta":** Y solo entre quienes tienen Z = 1.
 
@@ -253,7 +253,7 @@ Agrega `p_holm` (controla la probabilidad de al menos un falso positivo) y `p_bh
 No estima nada: lee las salidas y arma `resultados/presentacion/` con tablas T01…T10 (formato "estimado (EE)", IC, p, p ajustado; CSV, un libro `.xlsx` y `tablas.md`), figuras F01…F11 (PNG a 200 dpi y SVG, proporción 16:9) y un `indice_presentacion.md` que dice qué sostiene cada una. Si falta alguna salida (porque no corriste ese paso), la omite.
 
 ### Sensibilidad con el paquete oficial — `r/honestdid.R`
-Lee `honestdid_betahat.csv` y `honestdid_sigma.csv` (los exporta el paso 07) y corre `HonestDiD` (magnitudes relativas y suavidad) para el efecto inmediato y el promedio posterior. Escribe `honestdid_{rm,sd}_*.csv` y las figuras correspondientes. Es la versión que debes citar en el artículo; el paso 07 es una aproximación.
+Lee `honestdid_betahat.csv` y `honestdid_sigma.csv` (los exporta el paso 07) y corre `HonestDiD` (magnitudes relativas y suavidad) para el efecto inmediato y el promedio posterior. Escribe `honestdid_{rm,sd}_*.csv` y las figuras correspondientes. Es la versión que se cita en el artículo; el paso 07 es una aproximación.
 
 ## 5. Parámetros que puedes cambiar (`config.py`)
 
@@ -294,7 +294,7 @@ Con estos datos, 21 entidades quedan tratadas en 10 grupos (2010, 2012, 2014, 20
 2. **Poder estadístico (la limitación más importante).**
    - En la prueba, el efecto global tuvo un error estándar de unos 2.5 pp, mientras que un efecto plantado de 12 pp sobre las personas LGB+ equivale a menos de 1 pp sobre toda la muestra: **no se distingue de cero**.
    - En LGBTI+ (unos 2,600 casos) solo 27 de 147 celdas ATT(g,t) son estimables con `MIN_OBS_CELDA_SUBMUESTRAS = 5`, y el error estándar es de unos 16 pp. Con periodos de 3 años baja a unos 8.6 pp.
-   - En subgrupos más finos (gay/lesbiana, "ya sabía su orientación al debut") las estimaciones son inestables (por ejemplo, 77 pp con error de 35 pp en la prueba). **No las interpretes.**
+   - En subgrupos más finos (gay/lesbiana, "ya sabía su orientación al debut") las estimaciones son inestables (por ejemplo, 77 pp con error de 35 pp en la prueba). **No se deben de interpretar.**
    - Recomendación: para LGBTI+ y subgrupos usa `ANIOS_POR_PERIODO = 3`, y trata el modelo de toda la muestra como el análisis de referencia.
 3. **Las cohortes anteriores a 1990 no tienen periodo posterior a la ley.** Debutaron casi todas antes de 2010 (primera legalización), así que solo aportan periodos previos y las submuestras por cohorte quedan vacías. Las cohortes que identifican el efecto son las nacidas desde 1990 (la heterogeneidad usa <1990, 1990-94, 1995-99, 2000-04 y 2005+).
 4. **Año de inicio aproximado.** `anio_nac = 2021 − edad` (±1 año). El margen se prueba en la robustez 2a/2b.
